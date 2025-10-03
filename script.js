@@ -1,6 +1,5 @@
 const ws = new WebSocket(`ws://${location.host}`);
 
-// DOM Elements
 const userList = document.getElementById('user-list');
 const searchInput = document.getElementById('search');
 const messagesDiv = document.getElementById('messages');
@@ -41,38 +40,32 @@ const usersList = [
   {id:'u15', name:'Meera', avatar:'https://i.pravatar.cc/150?img=15'}
 ];
 
-// Render all users
+// Render users
 function renderUsers(users){
   userList.innerHTML='';
   users.forEach(u=>{
-    const li = document.createElement('li');
-    li.innerHTML = `<img src="${u.avatar}" class="avatar"><span class="username">${u.name}</span>`;
-    li.addEventListener('click', ()=> selectUser(u, li));
+    const li=document.createElement('li');
+    li.innerHTML=`<img src="${u.avatar}" class="avatar"><span class="username">${u.name}</span>`;
+    li.addEventListener('click', ()=> openChat(u, li));
     userList.appendChild(li);
   });
 }
 
-// Select user
-function selectUser(user, li){
-  selectedUser = user;
-  chatUsername.textContent = user.name;
-  chatAvatar.src = user.avatar;
+// Open chat immediately on click
+function openChat(user, li){
+  selectedUser=user;
+  chatUsername.textContent=user.name;
+  chatAvatar.src=user.avatar;
   messagesDiv.innerHTML='';
-
-  input.disabled = false;
-  sendBtn.disabled = false;
-  emojiBtn.disabled = false;
-  imageBtn.disabled = false;
-  voiceBtn.disabled = false;
 
   Array.from(userList.children).forEach(li=>li.classList.remove('selected'));
   li.classList.add('selected');
 }
 
-// Search
+// Search users
 searchInput.addEventListener('input', ()=>{
-  const term = searchInput.value.toLowerCase();
-  const filtered = usersList.filter(u=> u.name.toLowerCase().includes(term));
+  const term=searchInput.value.toLowerCase();
+  const filtered=usersList.filter(u=>u.name.toLowerCase().includes(term));
   renderUsers(filtered);
 });
 
@@ -82,26 +75,26 @@ input.addEventListener('keypress', e=>{ if(e.key==='Enter') sendMessage(); });
 
 function sendMessage(){
   if(!selectedUser) return;
-  const text = input.value.trim();
+  const text=input.value.trim();
   if(!text) return;
   appendMessage('me', text);
   ws.send(JSON.stringify({type:'chat', from:myId, to:selectedUser.id, content:text, msgType:'text', time:new Date().toLocaleTimeString()}));
   input.value='';
 }
 
-// Append message
+// Append messages
 function appendMessage(type, content, msgType='text', time=new Date().toLocaleTimeString()){
-  const div = document.createElement('div');
-  div.className = `message ${type}`;
+  const div=document.createElement('div');
+  div.className=`message ${type}`;
   if(msgType==='image') div.innerHTML=`<img src="${content}"><span class="timestamp">${time}</span>`;
   else if(msgType==='voice') div.innerHTML=`<audio controls src="${content}"></audio><span class="timestamp">${time}</span>`;
   else div.innerHTML=`${content}<span class="timestamp">${time}</span>`;
   messagesDiv.appendChild(div);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  messagesDiv.scrollTop=messagesDiv.scrollHeight;
 }
 
 // Menu actions
-menuBtn.addEventListener('click', ()=> menuOptions.classList.toggle('show'));
+menuBtn.addEventListener('click', ()=>menuOptions.classList.toggle('show'));
 clearBtn.addEventListener('click', ()=> messagesDiv.innerHTML='');
 blockBtn.addEventListener('click', ()=> alert(`Blocked ${selectedUser.name}`));
 reportBtn.addEventListener('click', ()=> alert(`Reported ${selectedUser.name}`));
@@ -114,9 +107,9 @@ emojiBtn.addEventListener('click', ()=>{ const e=prompt("Enter emoji"); if(e) in
 imageBtn.addEventListener('click', ()=> imageInput.click());
 imageInput.addEventListener('change', ()=>{
   if(!selectedUser) return;
-  const file = imageInput.files[0];
-  const reader = new FileReader();
-  reader.onload = ()=> appendMessage('me', reader.result,'image');
+  const file=imageInput.files[0];
+  const reader=new FileReader();
+  reader.onload=()=> appendMessage('me', reader.result,'image');
   reader.readAsDataURL(file);
 });
 
@@ -124,13 +117,13 @@ imageInput.addEventListener('change', ()=>{
 voiceBtn.addEventListener('click', async ()=>{
   if(!selectedUser) return;
   if(!navigator.mediaDevices) return alert("Microphone not supported");
-  const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-  const mediaRecorder = new MediaRecorder(stream);
-  let chunks = [];
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  const mediaRecorder=new MediaRecorder(stream);
+  let chunks=[];
   mediaRecorder.ondataavailable=e=>chunks.push(e.data);
   mediaRecorder.onstop=()=>{
-    const blob = new Blob(chunks,{type:'audio/webm'});
-    const url = URL.createObjectURL(blob);
+    const blob=new Blob(chunks,{type:'audio/webm'});
+    const url=URL.createObjectURL(blob);
     appendMessage('me', url,'voice');
     chunks=[];
   };
@@ -138,5 +131,5 @@ voiceBtn.addEventListener('click', async ()=>{
   setTimeout(()=>mediaRecorder.stop(),3000);
 });
 
-// Initialize
+// Initialize users
 renderUsers(usersList);
