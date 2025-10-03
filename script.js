@@ -1,5 +1,3 @@
-const ws = new WebSocket(`ws://${location.host}`);
-
 const userList = document.getElementById('user-list');
 const searchInput = document.getElementById('search');
 const messagesDiv = document.getElementById('messages');
@@ -22,6 +20,7 @@ let selectedUser = null;
 let myId = 'me';
 let myName = 'Me';
 
+// Users
 const usersList = [
   {id:'u1', name:'Buffyard', avatar:'https://i.pravatar.cc/150?img=1'},
   {id:'u2', name:'Yarn', avatar:'https://i.pravatar.cc/150?img=2'},
@@ -40,6 +39,25 @@ const usersList = [
   {id:'u15', name:'Meera', avatar:'https://i.pravatar.cc/150?img=15'}
 ];
 
+// Preloaded fake messages
+const fakeMessages = {
+  u1: [{from:'u1', content:'Hi there!'}, {from:'me', content:'Hello Buffyard!'}],
+  u2: [{from:'u2', content:'How are you?'}, {from:'me', content:'I am fine, Yarn!'}],
+  u3: [{from:'u3', content:'Good morning!'}, {from:'me', content:'Good morning Bhavya!'}],
+  u4: [{from:'u4', content:'What\'s up?'}, {from:'me', content:'All good Aarav!'}],
+  u5: [{from:'u5', content:'Check this out.'}, {from:'me', content:'Looks great Isha!'}],
+  u6: [{from:'u6', content:'Hello Rohan'}, {from:'me', content:'Hey Rohan!'}],
+  u7: [{from:'u7', content:'Meeting at 5 PM.'}, {from:'me', content:'Got it Priya!'}],
+  u8: [{from:'u8', content:'Did you finish the task?'}, {from:'me', content:'Yes Karan!'}],
+  u9: [{from:'u9', content:'Call me later.'}, {from:'me', content:'Sure Ananya!'}],
+  u10:[{from:'u10', content:'Party tonight?'}, {from:'me', content:'Absolutely Dev!'}],
+  u11:[{from:'u11', content:'Good luck!'}, {from:'me', content:'Thanks Sana!'}],
+  u12:[{from:'u12', content:'Send me the report.'}, {from:'me', content:'Sent Kabir!'}],
+  u13:[{from:'u13', content:'Can we meet?'}, {from:'me', content:'Yes Neha!'}],
+  u14:[{from:'u14', content:'Happy Birthday!'}, {from:'me', content:'Thanks Arjun!'}],
+  u15:[{from:'u15', content:'See you soon.'}, {from:'me', content:'See you Meera!'}],
+};
+
 // Render users
 function renderUsers(users){
   userList.innerHTML='';
@@ -51,18 +69,23 @@ function renderUsers(users){
   });
 }
 
-// Open chat immediately on click
+// Open chat and load fake messages
 function openChat(user, li){
   selectedUser=user;
   chatUsername.textContent=user.name;
   chatAvatar.src=user.avatar;
   messagesDiv.innerHTML='';
 
+  // Highlight selected
   Array.from(userList.children).forEach(li=>li.classList.remove('selected'));
   li.classList.add('selected');
+
+  // Load fake messages
+  const msgs = fakeMessages[user.id] || [];
+  msgs.forEach(m=> appendMessage(m.from==='me'?'me':'other', m.from==='me'?myName:user.name, m.content));
 }
 
-// Search users
+// Search
 searchInput.addEventListener('input', ()=>{
   const term=searchInput.value.toLowerCase();
   const filtered=usersList.filter(u=>u.name.toLowerCase().includes(term));
@@ -77,31 +100,43 @@ function sendMessage(){
   if(!selectedUser) return;
   const text=input.value.trim();
   if(!text) return;
-  appendMessage('me', text);
-  ws.send(JSON.stringify({type:'chat', from:myId, to:selectedUser.id, content:text, msgType:'text', time:new Date().toLocaleTimeString()}));
+  appendMessage('me', myName, text);
   input.value='';
 }
 
-// Append messages
-function appendMessage(type, content, msgType='text', time=new Date().toLocaleTimeString()){
+// Append message with avatar
+function appendMessage(senderType, senderName, content, type='text'){
+  if(!selectedUser) return;
   const div=document.createElement('div');
-  div.className=`message ${type}`;
-  if(msgType==='image') div.innerHTML=`<img src="${content}"><span class="timestamp">${time}</span>`;
-  else if(msgType==='voice') div.innerHTML=`<audio controls src="${content}"></audio><span class="timestamp">${time}</span>`;
-  else div.innerHTML=`${content}<span class="timestamp">${time}</span>`;
+  div.className=`message ${senderType}`;
+  const avatarImg = document.createElement('img');
+  avatarImg.className='avatar-msg';
+  avatarImg.src = senderType==='me' ? 'https://i.pravatar.cc/150?img=0' : selectedUser.avatar;
+
+  const contentDiv = document.createElement('div');
+  contentDiv.className='message-content';
+  if(type==='text') contentDiv.innerHTML=`<b>${senderName}:</b> ${content}<span class="timestamp">${new Date().toLocaleTimeString()}</span>`;
+  else if(type==='image') contentDiv.innerHTML=`<b>${senderName}:</b><br><img src="${content}" class="msg-image"><span class="timestamp">${new Date().toLocaleTimeString()}</span>`;
+  else if(type==='voice') contentDiv.innerHTML=`<b>${senderName}:</b><br><audio controls src="${content}"></audio><span class="timestamp">${new Date().toLocaleTimeString()}</span>`;
+
+  div.appendChild(avatarImg);
+  div.appendChild(contentDiv);
   messagesDiv.appendChild(div);
-  messagesDiv.scrollTop=messagesDiv.scrollHeight;
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-// Menu actions
-menuBtn.addEventListener('click', ()=>menuOptions.classList.toggle('show'));
+// Menu
+menuBtn.addEventListener('click', ()=> menuOptions.classList.toggle('show'));
 clearBtn.addEventListener('click', ()=> messagesDiv.innerHTML='');
 blockBtn.addEventListener('click', ()=> alert(`Blocked ${selectedUser.name}`));
 reportBtn.addEventListener('click', ()=> alert(`Reported ${selectedUser.name}`));
 callBtn.addEventListener('click', ()=> alert(`Calling ${selectedUser.name}...`));
 
 // Emoji
-emojiBtn.addEventListener('click', ()=>{ const e=prompt("Enter emoji"); if(e) input.value+=e; });
+emojiBtn.addEventListener('click', ()=>{
+  const e=prompt("Enter emoji");
+  if(e) input.value+=e;
+});
 
 // Image
 imageBtn.addEventListener('click', ()=> imageInput.click());
@@ -109,7 +144,7 @@ imageInput.addEventListener('change', ()=>{
   if(!selectedUser) return;
   const file=imageInput.files[0];
   const reader=new FileReader();
-  reader.onload=()=> appendMessage('me', reader.result,'image');
+  reader.onload=()=> appendMessage('me', myName, reader.result,'image');
   reader.readAsDataURL(file);
 });
 
@@ -124,12 +159,12 @@ voiceBtn.addEventListener('click', async ()=>{
   mediaRecorder.onstop=()=>{
     const blob=new Blob(chunks,{type:'audio/webm'});
     const url=URL.createObjectURL(blob);
-    appendMessage('me', url,'voice');
+    appendMessage('me', myName, url,'voice');
     chunks=[];
   };
   mediaRecorder.start();
   setTimeout(()=>mediaRecorder.stop(),3000);
 });
 
-// Initialize users
+// Initialize
 renderUsers(usersList);
