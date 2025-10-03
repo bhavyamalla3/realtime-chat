@@ -20,7 +20,7 @@ body, html{height:100%;background:#f3f0f8;}
 #chat-header span{margin-left:10px;font-weight:bold;font-size:16px;}
 #menu{margin-left:auto;position:relative;z-index:10;}
 
-/* Three-dot menu with violet/brinjal colors */
+/* Three-dot menu */
 #menu-options {
     display: none;
     position: absolute;
@@ -32,7 +32,6 @@ body, html{height:100%;background:#f3f0f8;}
     box-shadow:0 2px 5px rgba(0,0,0,0.3);
     z-index:100;
 }
-
 #menu-options button {
     display:block;
     width:140px;
@@ -45,7 +44,6 @@ body, html{height:100%;background:#f3f0f8;}
     color:#4b0082;
     transition:0.2s;
 }
-
 #menu-options button:hover{
     background:#d3c0f0;
 }
@@ -60,6 +58,19 @@ body, html{height:100%;background:#f3f0f8;}
 .message audio{width:200px;}
 .message-content{display:flex;flex-direction:column;}
 .timestamp{font-size:10px;color:#555;text-align:right;margin-top:2px;}
+
+/* Welcome message */
+.message.welcome {
+    justify-content:center;
+    align-items:center;
+    display:flex;
+}
+.message.welcome .message-content {
+    background:transparent;
+    color:#4b0082;
+    font-size:18px;
+    text-align:center;
+}
 
 /* Input Area */
 #input-container{display:flex;padding:10px;background:#f0eff7;gap:5px;align-items:center;border-top:1px solid #ccc;}
