@@ -8,8 +8,9 @@
 <body>
 <div id="app-container">
 
-  <!-- Sidebar: User List -->
+  <!-- Sidebar -->
   <div id="sidebar">
+    <h2>Contacts</h2>
     <ul id="user-list"></ul>
   </div>
 
@@ -17,7 +18,7 @@
   <div id="chat-window">
     <div id="chat-header">
       <img id="chat-avatar" src="" alt="User Avatar">
-      <span id="chat-username">Select a user to chat</span>
+      <span id="chat-username">Select a user</span>
       <div id="menu">
         <button id="menu-btn">⋮</button>
         <div id="menu-options">
@@ -33,11 +34,11 @@
 
     <div id="input-container">
       <input type="text" id="input" placeholder="Type a message..." disabled>
-      <button id="emoji-btn" disabled>😊</button>
+      <button type="button" id="emoji-btn" disabled>😊</button>
       <input type="file" id="image-input" style="display:none;">
-      <button id="image-btn" disabled>📷</button>
-      <button id="voice-btn" disabled>🎤</button>
-      <button id="send" disabled>➤</button>
+      <button type="button" id="image-btn" disabled>📷</button>
+      <button type="button" id="voice-btn" disabled>🎤</button>
+      <button type="button" id="send" disabled>➤</button>
     </div>
   </div>
 
