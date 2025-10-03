@@ -23,7 +23,7 @@ let selectedUser = null;
 let myId = 'me';
 let myName = 'Me';
 
-// Example list of 15 users
+// 15 users
 const usersList = [
   {id:'u1', name:'Buffyard', avatar:'https://i.pravatar.cc/150?img=1'},
   {id:'u2', name:'Yarn', avatar:'https://i.pravatar.cc/150?img=2'},
@@ -42,25 +42,21 @@ const usersList = [
   {id:'u15', name:'Meera', avatar:'https://i.pravatar.cc/150?img=15'}
 ];
 
-// Render all users in the sidebar
-function renderUserList(users){
-  userList.innerHTML='';
-  users.forEach(u=>{
-    const li = document.createElement('li');
-    li.innerHTML = `<img src="${u.avatar}" class="avatar"><span class="username">${u.name}</span>`;
-    li.addEventListener('click', ()=> startChat(u));
-    userList.appendChild(li);
-  });
-}
-renderUserList(usersList);
+// Render all users
+usersList.forEach(u=>{
+  const li = document.createElement('li');
+  li.innerHTML = `<img src="${u.avatar}" class="avatar"><span class="username">${u.name}</span>`;
+  li.addEventListener('click', ()=> startChat(u));
+  userList.appendChild(li);
+});
 
-// Start chat with clicked user
+// Start chat when user clicked
 function startChat(user){
   selectedUser = user;
   chatUsername.textContent = user.name;
   chatAvatar.src = user.avatar;
 
-  // Enable input buttons
+  // Enable buttons
   input.disabled = false;
   sendBtn.disabled = false;
   emojiBtn.disabled = false;
@@ -69,17 +65,18 @@ function startChat(user){
 
   messagesDiv.innerHTML='';
 
+  // Highlight selected
   Array.from(userList.children).forEach(li => li.classList.remove('selected'));
   const index = usersList.findIndex(u => u.id===user.id);
   userList.children[index].classList.add('selected');
 }
 
-// Send text message
+// Send text
 sendBtn.addEventListener('click', sendMessage);
-input.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessage(); });
+input.addEventListener('keypress', e => { if(e.key==='Enter') sendMessage(); });
 
 function sendMessage(){
-  if(!selectedUser) return alert("Select a user first!");
+  if(!selectedUser) return alert("Select a user to chat!");
   const text = input.value.trim();
   if(!text) return;
   appendMessage('me', text);
@@ -94,7 +91,7 @@ function sendMessage(){
   input.value='';
 }
 
-// Append message
+// Append messages
 function appendMessage(type, content, msgType='text', time=new Date().toLocaleTimeString()){
   const div = document.createElement('div');
   div.className = `message ${type}`;
@@ -105,7 +102,7 @@ function appendMessage(type, content, msgType='text', time=new Date().toLocaleTi
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-// Menu toggle
+// Menu
 menuBtn.addEventListener('click', ()=>menuOptions.classList.toggle('show'));
 clearBtn.addEventListener('click', ()=> messagesDiv.innerHTML='');
 blockBtn.addEventListener('click', ()=> alert(`Blocked ${selectedUser.name}`));
@@ -115,7 +112,7 @@ callBtn.addEventListener('click', ()=> alert(`Calling ${selectedUser.name}...`))
 // Emoji
 emojiBtn.addEventListener('click', ()=> { const e = prompt("Enter emoji"); if(e) input.value+=e; });
 
-// Image upload
+// Image
 imageBtn.addEventListener('click', ()=> imageInput.click());
 imageInput.addEventListener('change', ()=>{
   if(!selectedUser) return alert("Select a user first!");
@@ -135,7 +132,7 @@ imageInput.addEventListener('change', ()=>{
   reader.readAsDataURL(file);
 });
 
-// Voice recording
+// Voice
 voiceBtn.addEventListener('click', async ()=>{
   if(!selectedUser) return alert("Select a user first!");
   if(!navigator.mediaDevices) return alert("Microphone not supported");
