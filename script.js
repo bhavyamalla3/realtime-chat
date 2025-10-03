@@ -25,7 +25,7 @@ let myName = 'Me';
 const usersList = [
   {id:'u1', name:'Buffyard', avatar:'https://i.pravatar.cc/150?img=1'},
   {id:'u2', name:'Diyan', avatar:'https://i.pravatar.cc/150?img=2'},
-  {id:'u3', name:'wastefellow', avatar:'https://i.pravatar.cc/150?img=3'},
+  {id:'u3', name:'Wastefellow', avatar:'https://i.pravatar.cc/150?img=3'},
   {id:'u4', name:'Aarav', avatar:'https://i.pravatar.cc/150?img=4'},
   {id:'u5', name:'Bhavya', avatar:'https://i.pravatar.cc/150?img=5'},
   {id:'u6', name:'Rohan', avatar:'https://i.pravatar.cc/150?img=6'},
@@ -117,20 +117,32 @@ function appendMessage(senderType, senderName, content, type='text'){
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-// Menu functionality
-menuBtn.addEventListener('click', ()=>{
-  menuOptions.style.display = menuOptions.style.display==='block'?'none':'block';
+// Three-dot menu
+menuBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    menuOptions.style.display = menuOptions.style.display==='block'?'none':'block';
 });
+document.addEventListener('click', ()=> menuOptions.style.display='none');
 
-clearBtn.addEventListener('click', ()=>{ messagesDiv.innerHTML=''; });
-blockBtn.addEventListener('click', ()=>{ 
-  if(selectedUser) alert(`Blocked ${selectedUser.name}`);
+// Menu button actions
+clearBtn.addEventListener('click', ()=>{
+    if(selectedUser){
+        messagesDiv.innerHTML = '';
+        fakeMessages[selectedUser.id] = [];
+    }
+    menuOptions.style.display='none';
+});
+blockBtn.addEventListener('click', ()=>{
+    if(selectedUser) alert(`Blocked ${selectedUser.name}`);
+    menuOptions.style.display='none';
 });
 reportBtn.addEventListener('click', ()=>{
-  if(selectedUser) alert(`Reported ${selectedUser.name}`);
+    if(selectedUser) alert(`Reported ${selectedUser.name}`);
+    menuOptions.style.display='none';
 });
 callBtn.addEventListener('click', ()=>{
-  if(selectedUser) alert(`Calling ${selectedUser.name}...`);
+    if(selectedUser) alert(`Calling ${selectedUser.name}...`);
+    menuOptions.style.display='none';
 });
 
 // Emoji
@@ -174,7 +186,7 @@ voiceBtn.addEventListener('click', async ()=>{
 // Initialize
 renderUsers(usersList);
 
-// Show welcome message initially
+// Welcome message initially
 chatUsername.textContent = "Welcome ❤️";
 messagesDiv.innerHTML = `<div class="message welcome">
   <div class="message-content">
