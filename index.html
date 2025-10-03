@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mini WhatsApp</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app-container">
+  <div id="sidebar">
+    <h3>Users</h3>
+    <ul id="user-list"></ul>
+  </div>
+
+  <div id="chat-pane">
+    <div id="chat-header">
+      <img id="chat-avatar" src="" alt="Avatar">
+      <span id="chat-username">Select a user</span>
+      <div id="menu">
+        <button id="menu-btn">⋮</button>
+        <div id="menu-options">
+          <button id="clear-chat">Clear Chat</button>
+          <button id="block-user">Block</button>
+          <button id="call-user">Call</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="messages"></div>
+    <div id="typing"></div>
+
+    <div id="input-container">
+      <input id="input" placeholder="Type a message...">
+      <button id="send">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ws = new WebSocket(`ws://${location.host}`);
+const userList = document.getElementById('user-list');
+const messagesDiv = document.getElementById('messages');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('send');
+const chatUsername = document.getElementById('chat-username');
+const chatAvatar = document.getElementById('chat-avatar');
+const menuBtn = document.getElementById('menu-btn');
+const menuOptions = document.getElementById('menu-options');
+const clearBtn = document.getElementById('clear-chat');
+const blockBtn = document.getElementById('block-user');
+const callBtn = document.getElementById('call-user');
+const typingDiv = document.getElementById('typing');
+
+let selectedUser = null;
+let myName = prompt("Enter your name") || "Me";
+let myId = 'me';
+let typingTimeout = null;
+
+ws.addEventListener('message', e=>{
+  const data = JSON.parse(e.data);
+  if(data.type==='users') renderUserList(data.users);
+  else if(data.type==='chat'){
+    if(selectedUser && (selectedUser.id===data.from || selectedUser.id===data.to)){
+      appendMessage(data.from===myId?myName:selectedUser.name, data.content, data.time, data.color, data.delivered);
+    }
+  }
+  else if(data.type==='typing'){
+    if(selectedUser && data.from===selectedUser.id){
+      typingDiv.textContent = data.isTyping ? `${selectedUser.name} is typing...` : '';
+    }
+  }
+});
+
+function renderUserList(users){
+  userList.innerHTML='';
+  users.forEach(user=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<img src="${user.avatar}" class="avatar"> ${user.name}`;
+    li.addEventListener('click', ()=>{
+      selectedUser=user;
+      chatUsername.textContent=user.name;
+      chatAvatar.src=user.avatar;
+      messagesDiv.innerHTML='';
+    });
+    userList.appendChild(li);
+  });
+}
+
+function appendMessage(user,text,time,color,delivered=false){
+  const div = document.createElement('div');
+  div.className='message';
+  div.textContent = `${text} (${time}) ${delivered?'✓✓':'✓'}`;
+  div.style.background=color;
+  div.style.color='white';
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+sendBtn.addEventListener('click', sendMessage);
+input.addEventListener('keypress', e=>{ if(e.key==='Enter') sendMessage(); else sendTyping(); });
+
+function sendMessage(){
+  if(!selectedUser) return alert("Select a user!");
+  const text=input.value.trim();
+  if(!text) return;
+  ws.send(JSON.stringify({type:'chat', from:myId, to:selectedUser.id, content:text}));
+  appendMessage(myName,text,new Date().toLocaleTimeString(),'#128C7E', true);
+  input.value='';
+  sendTyping(false);
+}
+
+function sendTyping(state=true){
+  if(!selectedUser) return;
+  ws.send(JSON.stringify({type:'typing', from:myId, to:selectedUser.id, isTyping:state}));
+  if(state){ clearTimeout(typingTimeout); typingTimeout=setTimeout(()=>sendTyping(false),2000);}
+}
+
+// Menu toggle
+menuBtn.addEventListener('click', ()=>menuOptions.classList.toggle('show'));
+
+// Clear chat
+clearBtn.addEventListener('click', ()=>{
+  if(!selectedUser) return;
+  messagesDiv.innerHTML='';
+  alert(`Chat with ${selectedUser.name} cleared!`);
+});
+
+// Block user
+blockBtn.addEventListener('click', ()=>{
+  if(!selectedUser) return;
+  alert(`${selectedUser.name} blocked!`);
+});
+
+// Call user
+callBtn.addEventListener('click', ()=>{
+  if(!selectedUser) return;
+  alert(`Calling ${selectedUser.name}...`);
+});
+</script>
+</body>
+</html>
