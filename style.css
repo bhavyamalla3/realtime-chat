@@ -1,10 +1,12 @@
+/* Global Styles */
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
-body,html{height:100%;background:#e5ddd5;}
+body, html{height:100%;background:#e5ddd5;}
 #app-container{display:flex;height:100vh;}
 
 /* Sidebar */
 #sidebar{width:260px;background:#075e54;color:white;overflow-y:auto;display:flex;flex-direction:column;}
 #sidebar h2{padding:15px;font-size:18px;border-bottom:1px solid #128c7e;}
+#search{margin:10px 15px;padding:8px;border-radius:25px;border:none;outline:none;}
 #sidebar ul{list-style:none;padding:0;}
 #sidebar li{display:flex;align-items:center;padding:10px 15px;gap:10px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.1);transition:0.2s;}
 #sidebar li:hover{background:#128c7e;}
@@ -23,15 +25,22 @@ body,html{height:100%;background:#e5ddd5;}
 #menu-options button:hover{background:#f1f2f6;}
 #menu.show #menu-options{display:block;}
 
+/* Messages */
 #messages{flex:1;padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
-.message{max-width:65%;padding:10px 15px;border-radius:20px;word-wrap:break-word;position:relative;}
+.message{max-width:65%;padding:10px 15px;border-radius:20px;word-wrap:break-word;position:relative;animation:fadeIn 0.3s;}
 .message.me{align-self:flex-end;background:#dcf8c6;color:black;border-bottom-right-radius:5px;}
 .message.other{align-self:flex-start;background:white;color:black;border-bottom-left-radius:5px;}
 .message img{max-width:200px;border-radius:15px;}
 .message audio{width:200px;}
 .timestamp{display:block;font-size:10px;color:#999;text-align:right;margin-top:5px;}
 
-/* Input area */
+/* Input Area */
 #input-container{display:flex;padding:10px;background:#f0f0f0;gap:5px;align-items:center;border-top:1px solid #ccc;}
 #input-container input[type=text]{flex:1;padding:10px 15px;border-radius:25px;border:1px solid #ccc;outline:none;}
 #input-container button{padding:8px 12px;border:none;border-radius:50%;background:#25d366;color:white;cursor:pointer;font-size:16px;}
+
+/* Fade-in animation for messages */
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:translateY(0);}
+}
