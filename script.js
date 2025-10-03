@@ -1,3 +1,4 @@
+// DOM elements
 const userList = document.getElementById('user-list');
 const searchInput = document.getElementById('search');
 const messagesDiv = document.getElementById('messages');
@@ -20,7 +21,7 @@ let selectedUser = null;
 let myId = 'me';
 let myName = 'Me';
 
-// Users
+// Users list with avatars
 const usersList = [
   {id:'u1', name:'Buffyard', avatar:'https://i.pravatar.cc/150?img=1'},
   {id:'u2', name:'Yarn', avatar:'https://i.pravatar.cc/150?img=2'},
@@ -40,25 +41,15 @@ const usersList = [
 ];
 
 // Preloaded fake messages
-const fakeMessages = {
-  u1: [{from:'u1', content:'Hi there!'}, {from:'me', content:'Hello Buffyard!'}],
-  u2: [{from:'u2', content:'How are you?'}, {from:'me', content:'I am fine, Yarn!'}],
-  u3: [{from:'u3', content:'Good morning!'}, {from:'me', content:'Good morning Bhavya!'}],
-  u4: [{from:'u4', content:'What\'s up?'}, {from:'me', content:'All good Aarav!'}],
-  u5: [{from:'u5', content:'Check this out.'}, {from:'me', content:'Looks great Isha!'}],
-  u6: [{from:'u6', content:'Hello Rohan'}, {from:'me', content:'Hey Rohan!'}],
-  u7: [{from:'u7', content:'Meeting at 5 PM.'}, {from:'me', content:'Got it Priya!'}],
-  u8: [{from:'u8', content:'Did you finish the task?'}, {from:'me', content:'Yes Karan!'}],
-  u9: [{from:'u9', content:'Call me later.'}, {from:'me', content:'Sure Ananya!'}],
-  u10:[{from:'u10', content:'Party tonight?'}, {from:'me', content:'Absolutely Dev!'}],
-  u11:[{from:'u11', content:'Good luck!'}, {from:'me', content:'Thanks Sana!'}],
-  u12:[{from:'u12', content:'Send me the report.'}, {from:'me', content:'Sent Kabir!'}],
-  u13:[{from:'u13', content:'Can we meet?'}, {from:'me', content:'Yes Neha!'}],
-  u14:[{from:'u14', content:'Happy Birthday!'}, {from:'me', content:'Thanks Arjun!'}],
-  u15:[{from:'u15', content:'See you soon.'}, {from:'me', content:'See you Meera!'}],
-};
+const fakeMessages = {};
+usersList.forEach(u=>{
+  fakeMessages[u.id] = [
+    {from:u.id, content:`Hello! I am ${u.name}`},
+    {from:'me', content:`Hi ${u.name}, nice to meet you!`}
+  ];
+});
 
-// Render users
+// Render users in sidebar
 function renderUsers(users){
   userList.innerHTML='';
   users.forEach(u=>{
@@ -69,26 +60,27 @@ function renderUsers(users){
   });
 }
 
-// Open chat and load fake messages
+// Open chat
 function openChat(user, li){
   selectedUser=user;
   chatUsername.textContent=user.name;
   chatAvatar.src=user.avatar;
   messagesDiv.innerHTML='';
 
-  // Highlight selected
   Array.from(userList.children).forEach(li=>li.classList.remove('selected'));
   li.classList.add('selected');
 
   // Load fake messages
-  const msgs = fakeMessages[user.id] || [];
-  msgs.forEach(m=> appendMessage(m.from==='me'?'me':'other', m.from==='me'?myName:user.name, m.content));
+  const msgs = fakeMessages[user.id];
+  msgs.forEach(m=>{
+    appendMessage(m.from==='me'?'me':'other', m.from==='me'?myName:user.name, m.content);
+  });
 }
 
-// Search
+// Search users
 searchInput.addEventListener('input', ()=>{
-  const term=searchInput.value.toLowerCase();
-  const filtered=usersList.filter(u=>u.name.toLowerCase().includes(term));
+  const term = searchInput.value.toLowerCase();
+  const filtered = usersList.filter(u=>u.name.toLowerCase().includes(term));
   renderUsers(filtered);
 });
 
@@ -98,22 +90,24 @@ input.addEventListener('keypress', e=>{ if(e.key==='Enter') sendMessage(); });
 
 function sendMessage(){
   if(!selectedUser) return;
-  const text=input.value.trim();
+  const text = input.value.trim();
   if(!text) return;
   appendMessage('me', myName, text);
+  fakeMessages[selectedUser.id].push({from:'me', content:text});
   input.value='';
 }
 
-// Append message with avatar
+// Append message
 function appendMessage(senderType, senderName, content, type='text'){
   if(!selectedUser) return;
   const div=document.createElement('div');
   div.className=`message ${senderType}`;
-  const avatarImg = document.createElement('img');
-  avatarImg.className='avatar-msg';
-  avatarImg.src = senderType==='me' ? 'https://i.pravatar.cc/150?img=0' : selectedUser.avatar;
 
-  const contentDiv = document.createElement('div');
+  const avatarImg=document.createElement('img');
+  avatarImg.className='avatar-msg';
+  avatarImg.src=senderType==='me'?'https://i.pravatar.cc/150?img=0':selectedUser.avatar;
+
+  const contentDiv=document.createElement('div');
   contentDiv.className='message-content';
   if(type==='text') contentDiv.innerHTML=`<b>${senderName}:</b> ${content}<span class="timestamp">${new Date().toLocaleTimeString()}</span>`;
   else if(type==='image') contentDiv.innerHTML=`<b>${senderName}:</b><br><img src="${content}" class="msg-image"><span class="timestamp">${new Date().toLocaleTimeString()}</span>`;
@@ -134,7 +128,7 @@ callBtn.addEventListener('click', ()=> alert(`Calling ${selectedUser.name}...`))
 
 // Emoji
 emojiBtn.addEventListener('click', ()=>{
-  const e=prompt("Enter emoji");
+  const e = prompt("Enter emoji");
   if(e) input.value+=e;
 });
 
@@ -142,9 +136,12 @@ emojiBtn.addEventListener('click', ()=>{
 imageBtn.addEventListener('click', ()=> imageInput.click());
 imageInput.addEventListener('change', ()=>{
   if(!selectedUser) return;
-  const file=imageInput.files[0];
-  const reader=new FileReader();
-  reader.onload=()=> appendMessage('me', myName, reader.result,'image');
+  const file = imageInput.files[0];
+  const reader = new FileReader();
+  reader.onload = ()=> {
+    appendMessage('me', myName, reader.result,'image');
+    fakeMessages[selectedUser.id].push({from:'me', content:reader.result});
+  };
   reader.readAsDataURL(file);
 });
 
@@ -152,14 +149,15 @@ imageInput.addEventListener('change', ()=>{
 voiceBtn.addEventListener('click', async ()=>{
   if(!selectedUser) return;
   if(!navigator.mediaDevices) return alert("Microphone not supported");
-  const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-  const mediaRecorder=new MediaRecorder(stream);
+  const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+  const mediaRecorder = new MediaRecorder(stream);
   let chunks=[];
-  mediaRecorder.ondataavailable=e=>chunks.push(e.data);
-  mediaRecorder.onstop=()=>{
-    const blob=new Blob(chunks,{type:'audio/webm'});
-    const url=URL.createObjectURL(blob);
+  mediaRecorder.ondataavailable = e=>chunks.push(e.data);
+  mediaRecorder.onstop = ()=>{
+    const blob = new Blob(chunks,{type:'audio/webm'});
+    const url = URL.createObjectURL(blob);
     appendMessage('me', myName, url,'voice');
+    fakeMessages[selectedUser.id].push({from:'me', content:url});
     chunks=[];
   };
   mediaRecorder.start();
