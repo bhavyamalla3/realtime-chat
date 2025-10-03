@@ -1,13 +1,10 @@
 import { createServer } from 'http';
 import staticHandler from 'serve-handler';
 import { WebSocketServer } from 'ws';
-import fs from 'fs';
-import path from 'path';
 
 const server = createServer((req,res)=>staticHandler(req,res,{public:'public'}));
 const wss = new WebSocketServer({server});
 
-// Predefined users
 const usersList = [
   {id:'u1', name:'Bhavya', avatar:'https://i.pravatar.cc/150?img=1'},
   {id:'u2', name:'Aarav', avatar:'https://i.pravatar.cc/150?img=2'},
@@ -36,16 +33,17 @@ wss.on('connection', client=>{
   client.on('message', msg=>{
     try{
       const data=JSON.parse(msg);
-      handleMessage(client,data);
+      handleMessage(data);
     }catch(e){console.log(e);}
   });
 
   client.on('close', ()=>clients.delete(client));
 });
 
-function handleMessage(client,data){
+function handleMessage(data){
   if(data.type==='chat'){
-    const msgObj={from:data.from,to:data.to,content:data.content,time:new Date().toLocaleTimeString(),type:data.msgType||'text'};
+    const msgObj={from:data.from,to:data.to,content:data.content,time:new Date().toLocaleTimeString(),msgType:data.msgType||'text'};
+    
     messages[data.from]=messages[data.from]||{};
     messages[data.from][data.to]=messages[data.from][data.to]||[];
     messages[data.from][data.to].push(msgObj);
@@ -62,4 +60,5 @@ function handleMessage(client,data){
     for(const c of wss.clients) c.send(JSON.stringify({type:'clear', from:data.from, to:data.to}));
   }
 }
+
 server.listen(8080,()=>console.log('Server running on port 8080'));
