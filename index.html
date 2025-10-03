@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Mini WhatsApp</title>
+<title>Mini Chat App</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,23 +14,27 @@
 
   <div id="chat-pane">
     <div id="chat-header">
-      <img id="chat-avatar" src="" alt="Avatar">
+      <img id="chat-avatar" src="">
       <span id="chat-username">Select a user</span>
       <div id="menu">
         <button id="menu-btn">⋮</button>
         <div id="menu-options">
           <button id="clear-chat">Clear Chat</button>
           <button id="block-user">Block</button>
+          <button id="report-user">Report</button>
           <button id="call-user">Call</button>
         </div>
       </div>
     </div>
 
     <div id="messages"></div>
-    <div id="typing"></div>
 
     <div id="input-container">
+      <button id="emoji-btn">😊</button>
       <input id="input" placeholder="Type a message...">
+      <input type="file" id="image-input" style="display:none;">
+      <button id="image-btn">📷</button>
+      <button id="voice-btn">🎤</button>
       <button id="send">Send</button>
     </div>
   </div>
@@ -48,93 +52,102 @@ const menuBtn = document.getElementById('menu-btn');
 const menuOptions = document.getElementById('menu-options');
 const clearBtn = document.getElementById('clear-chat');
 const blockBtn = document.getElementById('block-user');
+const reportBtn = document.getElementById('report-user');
 const callBtn = document.getElementById('call-user');
-const typingDiv = document.getElementById('typing');
+const emojiBtn = document.getElementById('emoji-btn');
+const imageBtn = document.getElementById('image-btn');
+const imageInput = document.getElementById('image-input');
+const voiceBtn = document.getElementById('voice-btn');
 
 let selectedUser = null;
 let myName = prompt("Enter your name") || "Me";
 let myId = 'me';
-let typingTimeout = null;
 
 ws.addEventListener('message', e=>{
-  const data = JSON.parse(e.data);
+  const data=JSON.parse(e.data);
   if(data.type==='users') renderUserList(data.users);
-  else if(data.type==='chat'){
-    if(selectedUser && (selectedUser.id===data.from || selectedUser.id===data.to)){
-      appendMessage(data.from===myId?myName:selectedUser.name, data.content, data.time, data.color, data.delivered);
-    }
+  else if(data.type==='chat' && selectedUser && (data.from===selectedUser.id || data.to===selectedUser.id)){
+    appendMessage(data.from===myId?myName:selectedUser.name, data.content, data.type);
   }
-  else if(data.type==='typing'){
-    if(selectedUser && data.from===selectedUser.id){
-      typingDiv.textContent = data.isTyping ? `${selectedUser.name} is typing...` : '';
-    }
+  else if(data.type==='clear' && selectedUser && ((data.from===myId && data.to===selectedUser.id)||(data.to===myId && data.from===selectedUser.id))){
+    messagesDiv.innerHTML='';
   }
 });
 
 function renderUserList(users){
   userList.innerHTML='';
-  users.forEach(user=>{
-    const li = document.createElement('li');
-    li.innerHTML = `<img src="${user.avatar}" class="avatar"> ${user.name}`;
+  users.forEach(u=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<img src="${u.avatar}" class="avatar"> ${u.name}`;
     li.addEventListener('click', ()=>{
-      selectedUser=user;
-      chatUsername.textContent=user.name;
-      chatAvatar.src=user.avatar;
+      selectedUser=u;
+      chatUsername.textContent=u.name;
+      chatAvatar.src=u.avatar;
       messagesDiv.innerHTML='';
     });
     userList.appendChild(li);
   });
 }
 
-function appendMessage(user,text,time,color,delivered=false){
-  const div = document.createElement('div');
+function appendMessage(user,text,type='text'){
+  const div=document.createElement('div');
   div.className='message';
-  div.textContent = `${text} (${time}) ${delivered?'✓✓':'✓'}`;
-  div.style.background=color;
-  div.style.color='white';
+  if(type==='image') div.innerHTML=`<b>${user}:</b><br><img src="${text}" style="max-width:150px;border-radius:10px;">`;
+  else if(type==='voice') div.innerHTML=`<b>${user}:</b> <audio controls src="${text}"></audio>`;
+  else div.textContent=`${user}: ${text}`;
   messagesDiv.appendChild(div);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  messagesDiv.scrollTop=messagesDiv.scrollHeight;
 }
 
 sendBtn.addEventListener('click', sendMessage);
-input.addEventListener('keypress', e=>{ if(e.key==='Enter') sendMessage(); else sendTyping(); });
+input.addEventListener('keypress', e=>{ if(e.key==='Enter') sendMessage(); });
 
 function sendMessage(){
   if(!selectedUser) return alert("Select a user!");
   const text=input.value.trim();
   if(!text) return;
-  ws.send(JSON.stringify({type:'chat', from:myId, to:selectedUser.id, content:text}));
-  appendMessage(myName,text,new Date().toLocaleTimeString(),'#128C7E', true);
+  ws.send(JSON.stringify({type:'chat', from:myId, to:selectedUser.id, content:text, msgType:'text'}));
+  appendMessage(myName,text);
   input.value='';
-  sendTyping(false);
 }
 
-function sendTyping(state=true){
-  if(!selectedUser) return;
-  ws.send(JSON.stringify({type:'typing', from:myId, to:selectedUser.id, isTyping:state}));
-  if(state){ clearTimeout(typingTimeout); typingTimeout=setTimeout(()=>sendTyping(false),2000);}
-}
-
-// Menu toggle
 menuBtn.addEventListener('click', ()=>menuOptions.classList.toggle('show'));
+clearBtn.addEventListener('click', ()=>{ ws.send(JSON.stringify({type:'clear', from:myId, to:selectedUser.id})); });
+blockBtn.addEventListener('click', ()=>{ alert(`Blocked ${selectedUser.name}`); });
+reportBtn.addEventListener('click', ()=>{ alert(`Reported ${selectedUser.name}`); });
+callBtn.addEventListener('click', ()=>{ alert(`Calling ${selectedUser.name}...`); });
 
-// Clear chat
-clearBtn.addEventListener('click', ()=>{
-  if(!selectedUser) return;
-  messagesDiv.innerHTML='';
-  alert(`Chat with ${selectedUser.name} cleared!`);
+emojiBtn.addEventListener('click', ()=>{
+  const emoji = prompt("Enter emoji"); 
+  if(emoji) input.value+=emoji;
 });
 
-// Block user
-blockBtn.addEventListener('click', ()=>{
-  if(!selectedUser) return;
-  alert(`${selectedUser.name} blocked!`);
+imageBtn.addEventListener('click', ()=> imageInput.click());
+imageInput.addEventListener('change', ()=>{
+  const file = imageInput.files[0];
+  const reader = new FileReader();
+  reader.onload = ()=> {
+    ws.send(JSON.stringify({type:'chat', from:myId, to:selectedUser.id, content:reader.result, msgType:'image'}));
+    appendMessage(myName, reader.result,'image');
+  };
+  reader.readAsDataURL(file);
 });
 
-// Call user
-callBtn.addEventListener('click', ()=>{
-  if(!selectedUser) return;
-  alert(`Calling ${selectedUser.name}...`);
+voiceBtn.addEventListener('click', async ()=>{
+  if(!navigator.mediaDevices) return alert("Microphone not supported");
+  const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+  const mediaRecorder = new MediaRecorder(stream);
+  let chunks=[];
+  mediaRecorder.ondataavailable=e=>chunks.push(e.data);
+  mediaRecorder.onstop=()=>{
+    const blob = new Blob(chunks,{type:'audio/webm'});
+    const url = URL.createObjectURL(blob);
+    ws.send(JSON.stringify({type:'chat', from:myId, to:selectedUser.id, content:url, msgType:'voice'}));
+    appendMessage(myName,url,'voice');
+    chunks=[];
+  };
+  mediaRecorder.start();
+  setTimeout(()=>mediaRecorder.stop(),3000); // record 3 sec
 });
 </script>
 </body>
