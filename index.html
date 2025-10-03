@@ -2,19 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Mini Chat App</title>
+<title>Modern Chat App</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="app-container">
+  <!-- Sidebar -->
   <div id="sidebar">
-    <h3>Users</h3>
     <ul id="user-list"></ul>
   </div>
 
-  <div id="chat-pane">
+  <!-- Chat Window -->
+  <div id="chat-window">
     <div id="chat-header">
-      <img id="chat-avatar" src="">
+      <img id="chat-avatar" src="" alt="User Avatar">
       <span id="chat-username">Select a user</span>
       <div id="menu">
         <button id="menu-btn">⋮</button>
@@ -31,7 +32,7 @@
 
     <div id="input-container">
       <button id="emoji-btn">😊</button>
-      <input id="input" placeholder="Type a message...">
+      <input type="text" id="input" placeholder="Type a message...">
       <input type="file" id="image-input" style="display:none;">
       <button id="image-btn">📷</button>
       <button id="voice-btn">🎤</button>
@@ -67,7 +68,7 @@ ws.addEventListener('message', e=>{
   const data=JSON.parse(e.data);
   if(data.type==='users') renderUserList(data.users);
   else if(data.type==='chat' && selectedUser && (data.from===selectedUser.id || data.to===selectedUser.id)){
-    appendMessage(data.from===myId?myName:selectedUser.name, data.content, data.type);
+    appendMessage(data.from===myId?myName:selectedUser.name, data.content, data.msgType);
   }
   else if(data.type==='clear' && selectedUser && ((data.from===myId && data.to===selectedUser.id)||(data.to===myId && data.from===selectedUser.id))){
     messagesDiv.innerHTML='';
@@ -78,7 +79,8 @@ function renderUserList(users){
   userList.innerHTML='';
   users.forEach(u=>{
     const li=document.createElement('li');
-    li.innerHTML=`<img src="${u.avatar}" class="avatar"> ${u.name}`;
+    li.innerHTML=`<img src="${u.avatar}" class="avatar">`;
+    li.title = u.name;
     li.addEventListener('click', ()=>{
       selectedUser=u;
       chatUsername.textContent=u.name;
@@ -147,8 +149,4 @@ voiceBtn.addEventListener('click', async ()=>{
     chunks=[];
   };
   mediaRecorder.start();
-  setTimeout(()=>mediaRecorder.stop(),3000); // record 3 sec
-});
-</script>
-</body>
-</html>
+  setTimeout(()=>mediaRecorder.stop(),3000); // 
