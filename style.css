@@ -1,33 +1,37 @@
-*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}
-body, html{height:100%;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+body,html{height:100%;background:#e5ddd5;}
 #app-container{display:flex;height:100vh;}
 
 /* Sidebar */
-#sidebar{width:250px;background:#2f3542;color:white;overflow-y:auto;}
-#sidebar ul{list-style:none;padding:0;margin:0;}
-#sidebar li{display:flex;align-items:center;padding:10px;gap:10px;cursor:pointer;border-bottom:1px solid #444;transition:0.2s;}
-#sidebar li:hover{background:#57606f;}
-#sidebar li.selected{background:#747d8c;}
-#sidebar img.avatar{width:40px;height:40px;border-radius:50%;}
-#sidebar .username{font-size:14px;}
+#sidebar{width:260px;background:#075e54;color:white;overflow-y:auto;display:flex;flex-direction:column;}
+#sidebar h2{padding:15px;font-size:18px;border-bottom:1px solid #128c7e;}
+#sidebar ul{list-style:none;padding:0;}
+#sidebar li{display:flex;align-items:center;padding:10px 15px;gap:10px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.1);transition:0.2s;}
+#sidebar li:hover{background:#128c7e;}
+#sidebar li.selected{background:#25d366;}
+#sidebar img.avatar{width:45px;height:45px;border-radius:50%;}
+#sidebar .username{font-size:15px;}
 
 /* Chat Window */
-#chat-window{flex:1;display:flex;flex-direction:column;background:#f1f2f6;}
-#chat-header{display:flex;align-items:center;gap:10px;padding:10px;background:#fff;border-bottom:1px solid #ccc;position:relative;}
-#chat-header img{width:40px;height:40px;border-radius:50%;}
+#chat-window{flex:1;display:flex;flex-direction:column;background:#ece5dd;}
+#chat-header{display:flex;align-items:center;padding:10px;background:#075e54;color:white;position:relative;}
+#chat-header img{width:45px;height:45px;border-radius:50%;}
+#chat-header span{margin-left:10px;font-weight:bold;font-size:16px;}
 #menu{margin-left:auto;position:relative;}
-#menu-options{display:none;position:absolute;top:40px;right:0;background:white;border:1px solid #ccc;border-radius:5px;box-shadow:0 2px 5px rgba(0,0,0,0.2);}
-#menu-options button{display:block;padding:10px;width:120px;border:none;background:none;cursor:pointer;text-align:left;}
+#menu-options{display:none;position:absolute;top:50px;right:0;background:white;color:black;border-radius:5px;box-shadow:0 2px 5px rgba(0,0,0,0.3);}
+#menu-options button{display:block;width:120px;padding:10px;border:none;background:none;text-align:left;cursor:pointer;}
 #menu-options button:hover{background:#f1f2f6;}
 #menu.show #menu-options{display:block;}
 
-#messages{flex:1;padding:10px;overflow-y:auto;}
-.message{margin:5px 0;padding:10px;border-radius:15px;max-width:70%;word-wrap:break-word;position:relative;}
-.message.me{background:#4caf50;color:white;align-self:flex-end;}
-.message.other{background:#e0e0e0;color:black;align-self:flex-start;}
-.timestamp{display:block;font-size:10px;color:#555;text-align:right;margin-top:5px;}
+#messages{flex:1;padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+.message{max-width:65%;padding:10px 15px;border-radius:20px;word-wrap:break-word;position:relative;}
+.message.me{align-self:flex-end;background:#dcf8c6;color:black;border-bottom-right-radius:5px;}
+.message.other{align-self:flex-start;background:white;color:black;border-bottom-left-radius:5px;}
+.message img{max-width:200px;border-radius:15px;}
+.message audio{width:200px;}
+.timestamp{display:block;font-size:10px;color:#999;text-align:right;margin-top:5px;}
 
-/* Input Area */
-#input-container{display:flex;padding:10px;border-top:1px solid #ccc;gap:5px;align-items:center;background:#fff;}
-#input-container input[type=text]{flex:1;padding:8px;border-radius:20px;border:1px solid #ccc;outline:none;}
-#input-container button{padding:8px 12px;border:none;border-radius:50%;background:#4caf50;color:white;cursor:pointer;}
+/* Input area */
+#input-container{display:flex;padding:10px;background:#f0f0f0;gap:5px;align-items:center;border-top:1px solid #ccc;}
+#input-container input[type=text]{flex:1;padding:10px 15px;border-radius:25px;border:1px solid #ccc;outline:none;}
+#input-container button{padding:8px 12px;border:none;border-radius:50%;background:#25d366;color:white;cursor:pointer;font-size:16px;}
