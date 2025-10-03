@@ -30,7 +30,7 @@ const usersList = [
   {id:'u5', name:'Bhavya', avatar:'https://i.pravatar.cc/150?img=5'},
   {id:'u6', name:'Rohan', avatar:'https://i.pravatar.cc/150?img=6'},
   {id:'u7', name:'Priya', avatar:'https://i.pravatar.cc/150?img=7'},
-  {id:'u8', name:'Karan', avatar:'https://i.pravatar.cc/150?img=8'},
+  {id:'u8', name:'Junnu', avatar:'https://i.pravatar.cc/150?img=8'},
   {id:'u9', name:'Ananya', avatar:'https://i.pravatar.cc/150?img=9'},
   {id:'u10', name:'Dev', avatar:'https://i.pravatar.cc/150?img=10'},
   {id:'u11', name:'Sana', avatar:'https://i.pravatar.cc/150?img=11'},
@@ -193,3 +193,4 @@ messagesDiv.innerHTML = `<div class="message welcome">
     Welcome to the chat! ❤️
   </div>
 </div>`;
+
