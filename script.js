@@ -25,9 +25,9 @@ let myName = 'Me';
 const usersList = [
   {id:'u1', name:'Buffyard', avatar:'https://i.pravatar.cc/150?img=1'},
   {id:'u2', name:'Yarn', avatar:'https://i.pravatar.cc/150?img=2'},
-  {id:'u3', name:'Bhavya', avatar:'https://i.pravatar.cc/150?img=3'},
+  {id:'u3', name:'waste fellow', avatar:'https://i.pravatar.cc/150?img=3'},
   {id:'u4', name:'Aarav', avatar:'https://i.pravatar.cc/150?img=4'},
-  {id:'u5', name:'Isha', avatar:'https://i.pravatar.cc/150?img=5'},
+  {id:'u5', name:'Bhavya', avatar:'https://i.pravatar.cc/150?img=5'},
   {id:'u6', name:'Rohan', avatar:'https://i.pravatar.cc/150?img=6'},
   {id:'u7', name:'Priya', avatar:'https://i.pravatar.cc/150?img=7'},
   {id:'u8', name:'Karan', avatar:'https://i.pravatar.cc/150?img=8'},
@@ -168,3 +168,4 @@ voiceBtn.addEventListener('click', async ()=>{
 
 // Initialize
 renderUsers(usersList);
+
