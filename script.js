@@ -21,7 +21,7 @@ let selectedUser = null;
 let myId = 'me';
 let myName = 'Me';
 
-// Users list with avatars
+// Users list
 const usersList = [
   {id:'u1', name:'Buffyard', avatar:'https://i.pravatar.cc/150?img=1'},
   {id:'u2', name:'Yarn', avatar:'https://i.pravatar.cc/150?img=2'},
@@ -40,7 +40,7 @@ const usersList = [
   {id:'u15', name:'Meera', avatar:'https://i.pravatar.cc/150?img=15'}
 ];
 
-// Preloaded fake messages
+// Preloaded messages
 const fakeMessages = {};
 usersList.forEach(u=>{
   fakeMessages[u.id] = [
@@ -49,7 +49,7 @@ usersList.forEach(u=>{
   ];
 });
 
-// Render users in sidebar
+// Render sidebar
 function renderUsers(users){
   userList.innerHTML='';
   users.forEach(u=>{
@@ -71,8 +71,7 @@ function openChat(user, li){
   li.classList.add('selected');
 
   // Load fake messages
-  const msgs = fakeMessages[user.id];
-  msgs.forEach(m=>{
+  fakeMessages[user.id].forEach(m=>{
     appendMessage(m.from==='me'?'me':'other', m.from==='me'?myName:user.name, m.content);
   });
 }
@@ -119,12 +118,15 @@ function appendMessage(senderType, senderName, content, type='text'){
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-// Menu
-menuBtn.addEventListener('click', ()=> menuOptions.classList.toggle('show'));
-clearBtn.addEventListener('click', ()=> messagesDiv.innerHTML='');
-blockBtn.addEventListener('click', ()=> alert(`Blocked ${selectedUser.name}`));
-reportBtn.addEventListener('click', ()=> alert(`Reported ${selectedUser.name}`));
-callBtn.addEventListener('click', ()=> alert(`Calling ${selectedUser.name}...`));
+// Menu functionality
+menuBtn.addEventListener('click', ()=>{
+  document.getElementById('menu').classList.toggle('show');
+});
+
+clearBtn.addEventListener('click', ()=>{ messagesDiv.innerHTML=''; });
+blockBtn.addEventListener('click', ()=>{ alert(`Blocked ${selectedUser.name}`); });
+reportBtn.addEventListener('click', ()=>{ alert(`Reported ${selectedUser.name}`); });
+callBtn.addEventListener('click', ()=>{ alert(`Calling ${selectedUser.name}...`); });
 
 // Emoji
 emojiBtn.addEventListener('click', ()=>{
