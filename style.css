@@ -26,12 +26,14 @@ body, html{height:100%;background:#e5ddd5;}
 
 /* Messages */
 #messages{flex:1;padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
-.message{max-width:65%;padding:10px 15px;border-radius:20px;word-wrap:break-word;position:relative;animation:fadeIn 0.3s;}
+.message{max-width:65%;padding:10px 15px;border-radius:20px;word-wrap:break-word;position:relative;display:flex;align-items:flex-end;gap:5px;animation:fadeIn 0.3s;}
 .message.me{align-self:flex-end;background:#dcf8c6;color:black;border-bottom-right-radius:5px;}
 .message.other{align-self:flex-start;background:white;color:black;border-bottom-left-radius:5px;}
-.message img{max-width:200px;border-radius:15px;}
+.message img.avatar-msg{width:30px;height:30px;border-radius:50%;}
+.message img.msg-image{max-width:200px;border-radius:15px;}
 .message audio{width:200px;}
-.timestamp{display:block;font-size:10px;color:#999;text-align:right;margin-top:5px;}
+.message-content{display:flex;flex-direction:column;}
+.timestamp{font-size:10px;color:#999;text-align:right;margin-top:2px;}
 
 /* Input Area */
 #input-container{display:flex;padding:10px;background:#f0f0f0;gap:5px;align-items:center;border-top:1px solid #ccc;}
