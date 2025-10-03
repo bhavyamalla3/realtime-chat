@@ -21,9 +21,9 @@ const voiceBtn = document.getElementById('voice-btn');
 
 let selectedUser = null;
 let myId = 'me';
-let myName = prompt("Enter your name") || "Me";
+let myName = 'Me';
 
-// Example users
+// Example list of 15 users
 const usersList = [
   {id:'u1', name:'Buffyard', avatar:'https://i.pravatar.cc/150?img=1'},
   {id:'u2', name:'Yarn', avatar:'https://i.pravatar.cc/150?img=2'},
@@ -42,87 +42,124 @@ const usersList = [
   {id:'u15', name:'Meera', avatar:'https://i.pravatar.cc/150?img=15'}
 ];
 
-// Render user list
+// Render all users in the sidebar
 function renderUserList(users){
   userList.innerHTML='';
   users.forEach(u=>{
-    const li=document.createElement('li');
-    li.innerHTML=`<img src="${u.avatar}" class="avatar"><span class="username">${u.name}</span>`;
-    li.addEventListener('click',()=>{
-      selectedUser=u;
-      chatUsername.textContent=u.name;
-      chatAvatar.src=u.avatar;
-      Array.from(userList.children).forEach(l=>l.classList.remove('selected'));
-      li.classList.add('selected');
-      messagesDiv.innerHTML='';
-    });
+    const li = document.createElement('li');
+    li.innerHTML = `<img src="${u.avatar}" class="avatar"><span class="username">${u.name}</span>`;
+    li.addEventListener('click', ()=> startChat(u));
     userList.appendChild(li);
   });
 }
 renderUserList(usersList);
 
-// Menu toggle
-menuBtn.addEventListener('click',()=>menuOptions.classList.toggle('show'));
+// Start chat with clicked user
+function startChat(user){
+  selectedUser = user;
+  chatUsername.textContent = user.name;
+  chatAvatar.src = user.avatar;
 
-// Menu actions
-clearBtn.addEventListener('click',()=>{ messagesDiv.innerHTML=''; });
-blockBtn.addEventListener('click',()=>alert(`Blocked ${selectedUser.name}`));
-reportBtn.addEventListener('click',()=>alert(`Reported ${selectedUser.name}`));
-callBtn.addEventListener('click',()=>alert(`Calling ${selectedUser.name}...`));
+  // Enable input buttons
+  input.disabled = false;
+  sendBtn.disabled = false;
+  emojiBtn.disabled = false;
+  imageBtn.disabled = false;
+  voiceBtn.disabled = false;
 
-// Sending messages
-sendBtn.addEventListener('click',sendMessage);
-input.addEventListener('keypress',e=>{ if(e.key==='Enter') sendMessage(); });
+  messagesDiv.innerHTML='';
+
+  Array.from(userList.children).forEach(li => li.classList.remove('selected'));
+  const index = usersList.findIndex(u => u.id===user.id);
+  userList.children[index].classList.add('selected');
+}
+
+// Send text message
+sendBtn.addEventListener('click', sendMessage);
+input.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessage(); });
 
 function sendMessage(){
-  if(!selectedUser) return alert("Select a user!");
-  const text=input.value.trim();
+  if(!selectedUser) return alert("Select a user first!");
+  const text = input.value.trim();
   if(!text) return;
   appendMessage('me', text);
-  // Send via WebSocket
-  ws.send(JSON.stringify({type:'chat', from:myId, to:selectedUser.id, content:text, msgType:'text', time:new Date().toLocaleTimeString()}));
+  ws.send(JSON.stringify({
+    type:'chat',
+    from:myId,
+    to:selectedUser.id,
+    content:text,
+    msgType:'text',
+    time:new Date().toLocaleTimeString()
+  }));
   input.value='';
 }
 
+// Append message
 function appendMessage(type, content, msgType='text', time=new Date().toLocaleTimeString()){
-  const div=document.createElement('div');
-  div.className=`message ${type}`;
+  const div = document.createElement('div');
+  div.className = `message ${type}`;
   if(msgType==='image') div.innerHTML=`<img src="${content}" style="max-width:150px;border-radius:10px;"><span class="timestamp">${time}</span>`;
   else if(msgType==='voice') div.innerHTML=`<audio controls src="${content}"></audio><span class="timestamp">${time}</span>`;
   else div.innerHTML=`${content}<span class="timestamp">${time}</span>`;
   messagesDiv.appendChild(div);
-  messagesDiv.scrollTop=messagesDiv.scrollHeight;
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-// Emoji button
-emojiBtn.addEventListener('click',()=>{ const emoji=prompt("Enter emoji"); if(emoji) input.value+=emoji; });
+// Menu toggle
+menuBtn.addEventListener('click', ()=>menuOptions.classList.toggle('show'));
+clearBtn.addEventListener('click', ()=> messagesDiv.innerHTML='');
+blockBtn.addEventListener('click', ()=> alert(`Blocked ${selectedUser.name}`));
+reportBtn.addEventListener('click', ()=> alert(`Reported ${selectedUser.name}`));
+callBtn.addEventListener('click', ()=> alert(`Calling ${selectedUser.name}...`));
+
+// Emoji
+emojiBtn.addEventListener('click', ()=> { const e = prompt("Enter emoji"); if(e) input.value+=e; });
 
 // Image upload
-imageBtn.addEventListener('click',()=>imageInput.click());
-imageInput.addEventListener('change',()=>{
-  const file=imageInput.files[0];
-  const reader=new FileReader();
-  reader.onload=()=>{
-    appendMessage('me',reader.result,'image');
-    ws.send(JSON.stringify({type:'chat', from:myId, to:selectedUser.id, content:reader.result, msgType:'image', time:new Date().toLocaleTimeString()}));
+imageBtn.addEventListener('click', ()=> imageInput.click());
+imageInput.addEventListener('change', ()=>{
+  if(!selectedUser) return alert("Select a user first!");
+  const file = imageInput.files[0];
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    appendMessage('me', reader.result,'image');
+    ws.send(JSON.stringify({
+      type:'chat',
+      from:myId,
+      to:selectedUser.id,
+      content:reader.result,
+      msgType:'image',
+      time:new Date().toLocaleTimeString()
+    }));
   };
   reader.readAsDataURL(file);
 });
 
 // Voice recording
 voiceBtn.addEventListener('click', async ()=>{
+  if(!selectedUser) return alert("Select a user first!");
   if(!navigator.mediaDevices) return alert("Microphone not supported");
+
   const stream = await navigator.mediaDevices.getUserMedia({audio:true});
   const mediaRecorder = new MediaRecorder(stream);
-  let chunks=[];
-  mediaRecorder.ondataavailable=e=>chunks.push(e.data);
-  mediaRecorder.onstop=()=>{
-    const blob=new Blob(chunks,{type:'audio/webm'});
-    const url=URL.createObjectURL(blob);
-    appendMessage('me',url,'voice');
-    ws.send(JSON.stringify({type:'chat', from:myId, to:selectedUser.id, content:url, msgType:'voice', time:new Date().toLocaleTimeString()}));
-    chunks=[];
+  let chunks = [];
+
+  mediaRecorder.ondataavailable = e => chunks.push(e.data);
+  mediaRecorder.onstop = ()=>{
+    const blob = new Blob(chunks, {type:'audio/webm'});
+    const url = URL.createObjectURL(blob);
+    appendMessage('me', url, 'voice');
+    ws.send(JSON.stringify({
+      type:'chat',
+      from:myId,
+      to:selectedUser.id,
+      content:url,
+      msgType:'voice',
+      time:new Date().toLocaleTimeString()
+    }));
+    chunks = [];
   };
+
   mediaRecorder.start();
-  setTimeout(()=>mediaRecorder.stop(),3000);
+  setTimeout(()=>mediaRecorder.stop(), 3000);
 });
