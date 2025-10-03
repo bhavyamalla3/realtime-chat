@@ -24,8 +24,8 @@ let myName = 'Me';
 // Users list
 const usersList = [
   {id:'u1', name:'Buffyard', avatar:'https://i.pravatar.cc/150?img=1'},
-  {id:'u2', name:'Yarn', avatar:'https://i.pravatar.cc/150?img=2'},
-  {id:'u3', name:'Wastefellow', avatar:'https://i.pravatar.cc/150?img=3'},
+  {id:'u2', name:'Diyan', avatar:'https://i.pravatar.cc/150?img=2'},
+  {id:'u3', name:'wastefellow', avatar:'https://i.pravatar.cc/150?img=3'},
   {id:'u4', name:'Aarav', avatar:'https://i.pravatar.cc/150?img=4'},
   {id:'u5', name:'Bhavya', avatar:'https://i.pravatar.cc/150?img=5'},
   {id:'u6', name:'Rohan', avatar:'https://i.pravatar.cc/150?img=6'},
@@ -98,7 +98,6 @@ function sendMessage(){
 
 // Append message
 function appendMessage(senderType, senderName, content, type='text'){
-  if(!selectedUser && senderType==='me') return; 
   const div=document.createElement('div');
   div.className=`message ${senderType}`;
 
@@ -120,7 +119,7 @@ function appendMessage(senderType, senderName, content, type='text'){
 
 // Menu functionality
 menuBtn.addEventListener('click', ()=>{
-  document.getElementById('menu').classList.toggle('show');
+  menuOptions.style.display = menuOptions.style.display==='block'?'none':'block';
 });
 
 clearBtn.addEventListener('click', ()=>{ messagesDiv.innerHTML=''; });
@@ -177,8 +176,8 @@ renderUsers(usersList);
 
 // Show welcome message initially
 chatUsername.textContent = "Welcome ❤️";
-messagesDiv.innerHTML = `<div class="message other" style="justify-content:center;align-items:center;">
-  <div class="message-content" style="background:transparent;color:#4b0082;font-size:18px;text-align:center;">
+messagesDiv.innerHTML = `<div class="message welcome">
+  <div class="message-content">
     Welcome to the chat! ❤️
   </div>
 </div>`;
